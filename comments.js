@@ -1,44 +1,36 @@
 // create web server
+// start web server by running: node comments.js
+// view at: http://localhost:3000/comments
+// to stop server: Ctrl + C
+
+// import the express module
 var express = require('express');
-var router = express.Router();
 
-// create database connection
-var db = require('../db');
+// create a new express app
+var app = express();
 
-// create routes
-// GET all comments
-router.get('/', function(req, res, next) {
-  db('comments').select('*').then(function(comments) {
-    res.json(comments);
-  });
+// set up the view engine
+app.set('view engine', 'ejs');
+
+// use the express static middleware
+app.use(express.static('./public'));
+
+// create a route for the home page
+app.get('/', function(req, res) {
+    res.render('home');
 });
 
-// GET comment by id
-router.get('/:id', function(req, res, next) {
-  db('comments').select('*').where({ id: req.params.id }).then(function(comments) {
-    res.json(comments);
-  });
+// create a route for the comments page
+app.get('/comments', function(req, res) {
+    res.render('comments');
 });
 
-// POST new comment
-router.post('/', function(req, res, next) {
-  db('comments').insert(req.body).then(function() {
-    res.json({ success: true });
-  });
+// create a route for the comments page
+app.get('/contact', function(req, res) {
+    res.render('contact');
 });
 
-// PUT update comment by id
-router.put('/:id', function(req, res, next) {
-  db('comments').update(req.body).where({ id: req.params.id }).then(function() {
-    res.json({ success: true });
-  });
+// start the web server
+app.listen(3000, function() {
+    console.log('Listening on port 3000');
 });
-
-// DELETE comment by id
-router.delete('/:id', function(req, res, next) {
-  db('comments').del().where({ id: req.params.id }).then(function() {
-    res.json({ success: true });
-  });
-});
-
-module.exports = router;
