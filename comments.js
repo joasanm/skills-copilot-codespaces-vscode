@@ -1,36 +1,37 @@
 // create web server
-// start web server by running: node comments.js
-// view at: http://localhost:3000/comments
-// to stop server: Ctrl + C
+// run node comments.js
+// open browser and go to http://localhost:8080
 
-// import the express module
-var express = require('express');
+var http = require('http');
+var url = require('url');
 
-// create a new express app
-var app = express();
+var comments = [];
 
-// set up the view engine
-app.set('view engine', 'ejs');
+var server = http.createServer(function(request, response) {
+  var parsedUrl = url.parse(request.url, true);
+  var path = parsedUrl.pathname;
+  var query = parsedUrl.query;
+  var method = request.method;
 
-// use the express static middleware
-app.use(express.static('./public'));
-
-// create a route for the home page
-app.get('/', function(req, res) {
-    res.render('home');
+  if (path === '/comments') {
+    if (method === 'GET') {
+      var string = JSON.stringify(comments);
+      response.statusCode = 200;
+      response.setHeader('Content-Type', 'application/json;charset=utf-8');
+      response.write(string);
+      response.end();
+    } else if (method === 'POST') {
+      var comment = query.comment;
+      comments.push(comment);
+      response.statusCode = 200;
+      response.end();
+    }
+  } else {
+    response.statusCode = 404;
+    response.end();
+  }
 });
 
-// create a route for the comments page
-app.get('/comments', function(req, res) {
-    res.render('comments');
-});
-
-// create a route for the comments page
-app.get('/contact', function(req, res) {
-    res.render('contact');
-});
-
-// start the web server
-app.listen(3000, function() {
-    console.log('Listening on port 3000');
+server.listen(8080, function() {
+  console.log('Server is running...');
 });
